@@ -1292,14 +1292,24 @@
   const provider = new GoogleAuthProvider();
 
   window.googleLogin = async function() {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      console.log(result.user);
-      alert("Log masuk berjaya: " + result.user.displayName);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    signInWithProfile({
+      name: user.displayName || "",
+      email: user.email || "",
+      phone: "",
+      address: ""
+    });
+
+    showToast("Log masuk berjaya: " + user.displayName);
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+};
     
   </script>
 
@@ -1899,18 +1909,22 @@
 
     accountButton.addEventListener("click", openAccountModal);
 
-    accountPanel.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-account-action]");
-      if (!button) return;
+  accountPanel.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-account-action]");
+  if (!button) return;
 
-      if (button.dataset.accountAction === "signout") {
-        signOut();
-        return;
-      }
+  if (button.dataset.accountAction === "signout") {
+    signOut();
+    return;
+  }
 
-      openAccountModal();
-    });
+  if (button.dataset.accountAction === "signin") {
+    googleLogin();
+    return;
+  }
 
+  openAccountModal();
+});
     accountForm.addEventListener("submit", (event) => {
       event.preventDefault();
       if (!accountForm.reportValidity()) {
