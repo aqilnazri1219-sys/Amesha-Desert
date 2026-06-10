@@ -1268,6 +1268,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -1311,6 +1312,13 @@
   }
 };
     
+const db = getFirestore(app);
+
+await addDoc(collection(db, "orders"), {
+  nama: "Ali",
+  telefon: "0123456789",
+  jumlah: 25.90
+});
   </script>
 
   <script>
