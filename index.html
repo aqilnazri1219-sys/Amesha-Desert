@@ -2051,7 +2051,9 @@
     });
 document
   .getElementById("googleLoginBtn")
-  .addEventListener("click", googleLogin);
+  .addEventListener("click", () => {
+    window.googleLogin();
+  });
 
 if(currentProfile()){
   document.getElementById("loginPage").style.display = "none";
