@@ -1037,10 +1037,58 @@
         padding-right: 16px;
       }
     }
+
+    .login-page{
+  position:fixed;
+  inset:0;
+  background:#fbfaf7;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.login-box{
+  background:white;
+  padding:40px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.1);
+  max-width:400px;
+  width:90%;
+}
+
+.login-btn{
+  width:100%;
+  height:50px;
+  border:none;
+  border-radius:8px;
+  background:#1a73e8;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.hidden-page{
+  display:none;
+}
   </style>
 </head>
 <body>
-  <div class="app-shell">
+
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <h1>🍰 Selamat Datang ke ManisCart</h1>
+    <p>Sila log masuk atau cipta akaun untuk meneruskan.</p>
+
+    <button id="googleLoginBtn" class="login-btn">
+      Log Masuk Dengan Google
+    </button>
+  </div>
+</div>
+  
+  <div class="app-shell hidden-page" id="mainApp">
     <main class="menu-area">
       <header class="topbar">
         <div class="brand">
@@ -1293,7 +1341,7 @@
   const provider = new GoogleAuthProvider();
 
   window.googleLogin = async function() {
-  try {
+ try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
@@ -1304,21 +1352,16 @@
       address: ""
     });
 
-    showToast("Log masuk berjaya: " + user.displayName);
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("mainApp").classList.remove("hidden-page");
 
-  } catch (error) {
+    showToast("Log masuk berjaya");
+
+  } catch(error) {
     console.error(error);
     alert(error.message);
   }
 };
-    
-const db = getFirestore(app);
-
-await addDoc(collection(db, "orders"), {
-  nama: "Ali",
-  telefon: "0123456789",
-  jumlah: 25.90
-});
   </script>
 
   <script>
@@ -2006,10 +2049,19 @@ await addDoc(collection(db, "orders"), {
         orderModal.classList.remove("open");
       }
     });
+document
+  .getElementById("googleLoginBtn")
+  .addEventListener("click", googleLogin);
 
+if(currentProfile()){
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("mainApp").classList.remove("hidden-page");
+}
+    
     setDateDefaults();
     applyProfileToCheckout();
     render();
+  
     
   </script>
 </body>
