@@ -2127,14 +2127,6 @@ await simpanTempahan(data);
       syncProfileFromCheckout();
 
       const formData = new FormData(checkoutForm);
-
-        await simpanTempahan({
-        nama: formData.get("customerName"),
-        telefon: formData.get("customerPhone"),
-        alamat: formData.get("customerAddress") || "",
-        tarikh: formData.get("orderDate"),
-        masa: formData.get("orderTime"),
-        nota: formData.get("orderNotes") || ""
       });
 
 showReceipt(formData);
