@@ -1324,6 +1324,11 @@
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+  import {
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -1343,7 +1348,7 @@
   console.log("Firebase berjaya disambung");
   console.log(app);
   const analytics = getAnalytics(app);
-
+  const db = getFirestore(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
@@ -1394,6 +1399,48 @@
     alert(error.message);
   }
 };
+    async function simpanTempahan(data) {
+  try {
+    await addDoc(collection(db, "tempahan"), {
+      nama: data.nama,
+      telefon: data.telefon,
+      alamat: data.alamat,
+      masa: new Date()
+    });
+
+    alert("Tempahan berjaya disimpan");
+  } catch (error) {
+    console.error(error);
+  }
+}
+    await addDoc(collection(db, "tempahan"), {
+  userEmail: auth.currentUser.email,
+  nama: data.nama,
+  telefon: data.telefon,
+  alamat: data.alamat,
+  masa: new Date()
+});
+
+    async function loadTempahan() {
+  const q = query(
+    collection(db, "tempahan"),
+    where("userEmail", "==", auth.currentUser.email)
+  );
+
+  const snapshot = await getDocs(q);
+
+  snapshot.forEach((doc) => {
+    console.log(doc.data());
+    // Paparkan dalam senarai tempahan
+  });
+}
+    onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadTempahan();
+  }
+});
+    
+    
   </script>
 
   <script>
