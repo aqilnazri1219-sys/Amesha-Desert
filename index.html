@@ -1315,7 +1315,14 @@
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -1339,6 +1346,31 @@
 
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+
+  setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Sesi login disimpan");
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
+    onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("Pengguna masih login:", user.email);
+
+    signInWithProfile({
+      name: user.displayName || "",
+      email: user.email || "",
+      phone: "",
+      address: ""
+    });
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("mainApp").classList.remove("hidden-page");
+  }
+});
+    
 
   window.googleLogin = async function() {
  try {
