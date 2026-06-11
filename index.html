@@ -1399,9 +1399,18 @@
     alert(error.message);
   }
 };
-    async function simpanTempahan(data) {
+   async function simpanTempahan(data) {
   try {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Sila log masuk dahulu");
+      return;
+    }
+
     await addDoc(collection(db, "tempahan"), {
+      userEmail: user.email,
       nama: data.nama,
       telefon: data.telefon,
       alamat: data.alamat,
@@ -1409,37 +1418,31 @@
     });
 
     alert("Tempahan berjaya disimpan");
+
   } catch (error) {
     console.error(error);
   }
 }
-    await addDoc(collection(db, "tempahan"), {
-  userEmail: auth.currentUser.email,
-  nama: data.nama,
-  telefon: data.telefon,
-  alamat: data.alamat,
-  masa: new Date()
-});
+    
+ async function loadTempahan() {
+  const user = auth.currentUser;
 
-    async function loadTempahan() {
+  if (!user) {
+    console.log("Tiada pengguna login");
+    return;
+  }
+
   const q = query(
     collection(db, "tempahan"),
-    where("userEmail", "==", auth.currentUser.email)
+    where("userEmail", "==", user.email)
   );
 
   const snapshot = await getDocs(q);
 
   snapshot.forEach((doc) => {
     console.log(doc.data());
-    // Paparkan dalam senarai tempahan
   });
 }
-    onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadTempahan();
-  }
-});
-    
     
   </script>
 
