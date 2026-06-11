@@ -1073,6 +1073,65 @@
 .hidden-page{
   display:none;
 }
+
+    .order-card{
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:15px;
+  margin-bottom:15px;
+}
+
+.status-badge{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.status-menunggu{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.status-proses{
+  background:#cce5ff;
+  color:#004085;
+}
+
+.status-hantar{
+  background:#d1ecf1;
+  color:#0c5460;
+}
+
+.status-siap{
+  background:#d4edda;
+  color:#155724;
+}
+
+.status-batal{
+  background:#f8d7da;
+  color:#721c24;
+}
+
+.progress{
+  display:flex;
+  justify-content:space-between;
+  margin-top:15px;
+}
+
+.step{
+  flex:1;
+  text-align:center;
+  font-size:12px;
+  color:#999;
+}
+
+.step.active{
+  color:#2f766d;
+  font-weight:bold;
+}
   </style>
 </head>
 <body>
@@ -1115,6 +1174,12 @@
         </label>
 
         <div class="top-actions">
+          <button
+            id="orderHistoryBtn"
+            class="secondary-btn"
+            type="button">
+            Pesanan Saya
+          </button>
           <div class="status-chip">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1417,6 +1482,9 @@
   tarikh: data.tarikh,
   masa: data.masa,
   nota: data.nota,
+
+ status: "Menunggu",
+    
   createdAt: new Date()
 });
 
@@ -1435,6 +1503,120 @@
     return;
   }
 
+   window.paparPesananSaya = async function () {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Sila login dahulu");
+    return;
+  }
+
+  const q = query(
+    collection(db, "tempahan"),
+    where("userEmail", "==", user.email)
+  );
+
+  const snapshot = await getDocs(q);
+
+  let html = "";
+
+  snapshot.forEach((doc) => {
+
+    const data = doc.data();
+
+    const status =
+      data.status || "Menunggu";
+
+    let badgeClass =
+      "status-menunggu";
+
+    if(status === "Diproses")
+      badgeClass = "status-proses";
+
+    if(status === "Dalam Penghantaran")
+      badgeClass = "status-hantar";
+
+    if(status === "Selesai")
+      badgeClass = "status-siap";
+
+    if(status === "Dibatalkan")
+      badgeClass = "status-batal";
+
+    html += `
+      <div class="order-card">
+
+        <h3>${data.nama}</h3>
+
+        <p>
+          Tarikh:
+          ${data.tarikh}
+          <br>
+
+          Masa:
+          ${data.masa}
+        </p>
+
+        <span class="status-badge ${badgeClass}">
+          ${status}
+        </span>
+
+        <div class="progress">
+
+          <div class="step ${
+            ["Menunggu","Diproses","Dalam Penghantaran","Selesai"]
+            .includes(status)
+            ? "active" : ""
+          }">
+            Menunggu
+          </div>
+
+          <div class="step ${
+            ["Diproses","Dalam Penghantaran","Selesai"]
+            .includes(status)
+            ? "active" : ""
+          }">
+            Diproses
+          </div>
+
+          <div class="step ${
+            ["Dalam Penghantaran","Selesai"]
+            .includes(status)
+            ? "active" : ""
+          }">
+            Hantar
+          </div>
+
+          <div class="step ${
+            status === "Selesai"
+            ? "active"
+            : ""
+          }">
+            Selesai
+          </div>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  if(html === ""){
+    html = `
+      <p>
+        Tiada pesanan dijumpai.
+      </p>
+    `;
+  }
+
+  document
+    .getElementById("historyBody")
+    .innerHTML = html;
+
+  document
+    .getElementById("historyModal")
+    .classList.add("open");
+};
   const q = query(
     collection(db, "tempahan"),
     where("userEmail", "==", user.email)
@@ -2168,7 +2350,60 @@ if(currentProfile()){
     setDateDefaults();
     applyProfileToCheckout();
     render();
-  
+
+    document
+  .getElementById("orderHistoryBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      window.paparPesananSaya();
+
+    }
+  );
+
+document
+  .getElementById("closeHistoryBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById("historyModal")
+        .classList.remove("open");
+
+    }
+  );
+    
   </script>
+  <div class="modal-backdrop" id="historyModal">
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <div>
+        <h2>Pesanan Saya</h2>
+      </div>
+
+      <button
+        class="icon-btn"
+        id="closeHistoryBtn">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div
+      class="modal-body"
+      id="historyBody">
+
+      Loading...
+
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
