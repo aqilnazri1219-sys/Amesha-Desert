@@ -2099,7 +2099,18 @@
     });
 
   checkoutForm.addEventListener("submit", async (event) => {
+await simpanTempahan(data);
       event.preventDefault();
+      const data = {
+      nama: customerNameInput.value,
+      telefon: customerPhoneInput.value,
+      alamat: addressInput.value,
+      tarikh: orderDate.value,
+      masa: orderTime.value,
+      nota: document.getElementById("orderNotes").value
+    };
+
+await simpanTempahan(data);
       if (cartTotals().count === 0) {
         showToast("Pilih sekurang-kurangnya satu item dahulu.");
         return;
@@ -2160,7 +2171,15 @@ if(currentProfile()){
     applyProfileToCheckout();
     render();
   
-    
+    rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
   </script>
 </body>
 </html>
