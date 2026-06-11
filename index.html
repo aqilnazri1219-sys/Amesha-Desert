@@ -1409,13 +1409,16 @@
       return;
     }
 
-    await addDoc(collection(db, "tempahan"), {
-      userEmail: user.email,
-      nama: data.nama,
-      telefon: data.telefon,
-      alamat: data.alamat,
-      masa: new Date()
-    });
+  await addDoc(collection(db, "tempahan"), {
+  userEmail: user.email,
+  nama: data.nama,
+  telefon: data.telefon,
+  alamat: data.alamat,
+  tarikh: data.tarikh,
+  masa: data.masa,
+  nota: data.nota,
+  createdAt: new Date()
+});
 
     alert("Tempahan berjaya disimpan");
 
@@ -2095,7 +2098,7 @@
       }
     });
 
-    checkoutForm.addEventListener("submit", (event) => {
+  checkoutForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (cartTotals().count === 0) {
         showToast("Pilih sekurang-kurangnya satu item dahulu.");
@@ -2111,8 +2114,19 @@
       }
 
       syncProfileFromCheckout();
+
       const formData = new FormData(checkoutForm);
-      showReceipt(formData);
+
+        await simpanTempahan({
+        nama: formData.get("customerName"),
+        telefon: formData.get("customerPhone"),
+        alamat: formData.get("customerAddress") || "",
+        tarikh: formData.get("orderDate"),
+        masa: formData.get("orderTime"),
+        nota: formData.get("orderNotes") || ""
+      });
+
+showReceipt(formData);
       state.cart = {};
       saveCart();
       checkoutForm.reset();
